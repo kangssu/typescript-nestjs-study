@@ -1,0 +1,25 @@
+{
+  // 1. target, module :
+  // 버전을 맞춰서 사용할 수 있다.
+  // 예전의 자바스크립트 버전을 사용할 일이 있을 경우 중요한 옵션!
+  // 2. outDir :
+  // 컴파일되는 js 파일을 사용되는 코드와 분리시킬 수 있다.
+  // 3. strict :
+  // 매개변수의 타입을 지정하지 않고 엄격한 검사 true로 되어있을 경우 에러가 나온다.
+  // 4. moduleDetection :
+  // 독립적인 파일로 인식해서 같은 공간에 있는 파일들에서 동일한 변수명을 사용할 수 있다.
+  // 컴파일된 자바스크립트 파일을 보면 export {} 를 자동으로 추가해준다.
+  "compilerOptions": {
+    "target":"ESNext",
+    "module":"ESNext",
+    "outDir": "dist",
+    "strict": false,
+    "moduleDetection": "force"
+  },
+  "ts-node": {
+    "esm": true
+  },
+  // src 폴더 아래의 파일들을 전부 컴파일한다.
+  // 즉 tsc로만 실행시켜도 src 폴더 아래의 파일들이 컴파일된다.
+  "include": ["src"]
+}
