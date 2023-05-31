@@ -1,0 +1,17 @@
+{
+    "compilerOptions":{
+        "target":"ESNext",
+
+        "module":"ESNext",
+        "outDir":"dist",
+        "strict": true,
+        // 엄격한 null 검사 속성
+        // 예를들어 false로 설정하면 number 타입에 null 값을 넣을 수 있다.
+        // "strictNullChecks": false,
+        "moduleDetection": "force"
+    },
+    "ts-node":{
+        "esm":true
+    },
+    "include": ["src"]
+}
