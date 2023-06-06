@@ -43,10 +43,67 @@ let a: number = 1;
 * 객체 리터럴 타입: 객체(Object)의 모든 타입까지 전부 지정하는 것을 말한다.<br>**구조를 기준으로 타입을 정의하기 때문에 구조적 타입 시스템**이라고 부른다.(Property Based Type System)
 
 #### 타입 별칭
-* 타입을 마치 별칭처럼 사용하는 것을 타입 별칭이라고 한다.(실무에서는 기본으로 사용했음..)<br><pre>type User = {<br> id: number;<br> name:string;<br>};</pre>
+* 타입을 마치 별칭처럼 사용하는 것을 타입 별칭이라고 한다.<br><pre>type User = {<br> id: number;<br> name:string;<br>};</pre>
 * 타입별칭은 동일한 스코프에 중복되지 않도록 사용해야하지만, 함수내에는 상관없고 export를 사용한다면 문제없다.
 
 #### 인덱스 시그니처
 * 객체 타입의 정의를 더 유연하게 해주는 key와 value로 사용한다.<br><pre>type countryCodes = {<br> [key: string]: string;<br>};</pre>
 * 여기서 프로퍼티들이 전부 존재하지 않아도 오류가 나지 않는 이유는 규칙을 위반하지만 않으면 발생하지 않는다.<br>기본적인 프로퍼티를 추가적으로 적어주는 것도 좋은 방법이지만 value의 타입은 일치해야된다는 점은 기억해두어야한다!
+
+-- 중간 정리하기
+
+#### 함수타입
+* 타입스크립트 함수는 **어떤 타입**의 매개변수를 받고, **어떤 타입**의 결과값을 반환하는지 알면 된다.
+  * **선택적 매개변수:** 매개변수에 전달하는 값을 생략하고 싶다면 ?를 사용해서 선택적 매개변수로 정의를 한다. (필수 매개변수 앞에 올 수 없음..)
+  선택적 매개변수라면 undefinde 값이 들어올 수 있기 때문에 타입가드로 타입을 좁혀야 한다. (예를들어 tall * 10이 오류가 나는 것 처럼..)
+```
+function test(a: number, b: number) {
+ return a + b;
+}
+or
+function test2(name = "강수", tall?: number) {
+ console.log(`name: ${name}`);
+ if (typeof tall === "number") {
+  console.log(`tall: ${tall}`);
+ }
+}
+
+test2("강수", 170);
+test2("강수");
+```
+
+#### 함수 타입 표현식과 호출 시그니처
+* **함수 타입 표현식:** 타입 별칭을 사용하여 매개변수의 타입과 반환값의 타입을 별도로 만들 수 있다.<br><pre>type Operation = (a: number, b: number) => number;<br>const add: Operation = (a,b) => a - b;</pre>
+* **호출 시그니쳐(콜 시그니처):** 실제 함수를 직접 정의하는 것처럼 타입의 문법으로 정의하는 것이라고 한다. 함수 타입 표현식과 동일한 기능을 한다.<br><pre>type Operation2 = {<br> (a: number, b: number): number;<br>};<br>// function func**(a: number): void** {}</pre>
+
+#### 함수 타입의 호환성
+* 특정 함수 타입을 다른 함수 타입으로 취급해도 괜찮은지를 판단하게 된다.
+* 즉, 반환값의 타입과 매개변수의 타입이 호환되어야 함수 타입이 호환된다고 보면 된다.
+```
+// 1. 반환값이 호환되는지 확인해보기!
+type A = () => number; 
+type B = () => 10;
+let a: A = () => 10; // number 타입
+let b: B = () => 10; // number 리터럴 타입
+
+a = b; // 업캐스팅(number 리터럴 타입 -> number 타입)
+b = a; // 여기서 오류! 이유는 다운캐스팅이 되면 안되기 때문이다.(number 타입 -> number 리터럴 타입)
+
+// 2. 매개변수가 호환되는지 확인해보기!
+type C = (value: number) => void;
+type D = (value: 10) => void;
+
+let c: C = (value) => {};
+let d: D = (value) => {};
+
+c = d; // 여기서 오류! 업캐스팅..왜 오류가 날까?
+d = c; // 다운캐스팅..왜 될까?
+```
+
+* 위에서 생긴 의문점 업캐스팅인데 오류가 나고 다운캐스팅인데 오류가 나지 않는다..이유를 확인해보자!
+  * 슈퍼 타입 <- 서브 타입(업캐스팅): 오류발생, 서브 타입 <- 슈퍼 타입(다운캐스팅): 오류안남
+
+
+
+
 
