@@ -74,7 +74,7 @@ test2("강수");
 
 #### 함수 타입 표현식과 호출 시그니처
 * **함수 타입 표현식:** 타입 별칭을 사용하여 매개변수의 타입과 반환값의 타입을 별도로 만들 수 있다.<br><pre>type Operation = (a: number, b: number) => number;<br>const add: Operation = (a,b) => a - b;</pre>
-* **호출 시그니쳐(콜 시그니처):** 실제 함수를 직접 정의하는 것처럼 타입의 문법으로 정의하는 것이라고 한다. 함수 타입 표현식과 동일한 기능을 한다.<br><pre>type Operation2 = {<br> (a: number, b: number): number;<br>};<br>// function func**(a: number): void** {}</pre>
+* **호출 시그니쳐(콜 시그니처):** 실제 함수를 직접 정의하는 것처럼 타입의 문법으로 정의하는 것이라고 한다. 함수 타입 표현식과 동일한 기능을 한다.<br><pre>type Operation2 = {<br> (a: number, b: number): number;<br>};<br>// function func(a: number): void {}</pre>
 
 #### 함수 타입의 호환성
 * 특정 함수 타입을 다른 함수 타입으로 취급해도 괜찮은지를 판단하게 된다.
@@ -83,7 +83,7 @@ test2("강수");
 // 1. 반환값이 호환되는지 확인해보기!
 type A = () => number; 
 type B = () => 10;
-let a: A = () => 10; // number 타입
+let a: A = () => 10; //  number 타입
 let b: B = () => 10; // number 리터럴 타입
 
 a = b; // 업캐스팅(number 리터럴 타입 -> number 타입)
@@ -100,8 +100,41 @@ c = d; // 여기서 오류! 업캐스팅..왜 오류가 날까?
 d = c; // 다운캐스팅..왜 될까?
 ```
 
-* 위에서 생긴 의문점 업캐스팅인데 오류가 나고 다운캐스팅인데 오류가 나지 않는다..이유를 확인해보자!
-  * 슈퍼 타입 <- 서브 타입(업캐스팅): 오류발생, 서브 타입 <- 슈퍼 타입(다운캐스팅): 오류안남
+* **위에서 생긴 의문점!:astonished: 업캐스팅인데 오류가 나고 다운캐스팅인데 오류가 나지 않는다..이유를 확인해보자!**
+  * 매개변수가 객체 타입일때 이해하기 쉽기 때문에 매개변수 객체 타입 예시를 확인해보자!
+```
+type Animal = {
+ name: string;
+};
+
+type Dog = {
+ name: string;
+ color: string;
+};
+
+let animalFunc = (animal: Animal) => {
+ console.log(animal.name);
+};
+
+let dogFunc = (dog: Dog) => {
+ console.log(dog.name);
+ console.log(dog.color);
+};
+
+animalFunc = dogFunc; // 여기서 오류! 이유는 서브 타입의 매개변수가 슈퍼 타입에 없기 때문에 말도 안되는 코드가 나오는 걸 방지하기 위해서 오류 발생시킨다.
+dogFunc = animalFunc; // 여기서 오류 안남! 이유는 서브 타입은 슈퍼 타입의 모든 프로퍼티를 가지고 있기 때문에 가능하다.
+```
+
+#### 함수 오버로딩
+* 함수의 구현부 없이 작성한 코드를 **오버로드 시그니쳐**라고 한다.
+* 실제 구현부를 **구현 시그니쳐**라고 한다. 즉, 오버로드 시그니쳐에서 만들어진 버전이 아니라면 오류가 발생하며 오버로드 시그니쳐의 매개변수 개수 차이가 있다면 실제 구현부에서 선택적 매개변수로 정의해서 모두 의미있게 만들어줘야 한다.
+
+
+
+
+
+
+
 
 
 
