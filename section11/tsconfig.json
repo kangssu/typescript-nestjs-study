@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		// 리액트 앱이 어디서든 작성하기 위해 ES5와 CommonJS로 사용한다.
+		"target": "ES5",
+		"module": "CommonJS",
+		"strict": true,
+		"allowJs": true,
+        // deafult로 내보낸 값이 없어도 오류가 나지 않게 해주는 설정 값(React, ReactDOM 등 외부 라이브러리 사용시)
+        "esModuleInterop": true,
+        // jsx 문법을 사용하기 위한 설정 값
+        "jsx": "react-jsx"
+	},
+	"include": ["src"]
+}
