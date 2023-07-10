@@ -285,41 +285,15 @@ const employeeB = new Employee("이정환", 27, "개발자");
 * **제네릭이란?**
   * 함수의 인수에 따라 반환값을 가변적으로 사용하는 것이 제네릭으로 일관적인, 포괄적인 함수를 제네릭 함수라고 한다.
   * 함수의 이름 뒤에 <T> 문법을 사용해서 타입변수를 지정해줘야한다.
-  * 제네릭 타입변수에 어떤 타입이 담기는지 결정될 때는 함수를 호출할 때마다 결정된다.
-```
-function func<T>(value: T): T{
- return value;
-}
-
-let num = func(10); // value 10, number 타입이 들어가기 때문에 제네릭 타입이 number로 추론된다.
-let bool = func(true);
-```
+  * 제네릭 타입변수에 어떤 타입이 담기는지 결정될 때는 함수를 호출할 때마다 결정된다.<br><pre>function func<T>(value: T): T{<br> return value;<br>}<br>let num = fun(10); value 10, number 타입이 들어가기 때문에 제네릭 타입이 number로 추론된다.<br>let bool = func(true);</pre>
 
 * **제네릭 함수 응용**
   * 함수 호출시 2가지 인수를 받을 경우 제네릭 타입변수도 2가지를 받아야 타입이 다르더라도 오류가 나지 않는다.(<T, U> 이런식으로) 그 이유는 처음에 받은 타입이 두번째 타입에도 동일하게 할당이 되서 오류가 나기 때문이다.
-  * 함수 호출 전에는 제네릭 타입에 어떤 타입이 올지 모르기 때문에 배열의 인덱스를 반환할 경우에 오류가 발생한다. 그 이유는 unknown 타입의 인덱스 형식으로 사용할 수 없기 때문인데 이때 T[]로 명시해준다면 오류가 발생하지 않는다.(타입을 명시하지 않을 경우 (data:[T, ...unknown[]])으로 사용)
-```
-function first<T>(data: T[]){
- return data[0]
-}
-let num = first([0,1,2,]);
-```
-
+  * 함수 호출 전에는 제네릭 타입에 어떤 타입이 올지 모르기 때문에 배열의 인덱스를 반환할 경우에 오류가 발생한다. 그 이유는 unknown 타입의 인덱스 형식으로 사용할 수 없기 때문인데 이때 T[]로 명시해준다면 오류가 발생하지 않는다.(타입을 명시하지 않을 경우 (data:[T, ...unknown[]])으로 사용)<br><pre>function first<T>(data: T[]){<br> return data[0]<br>}<br>let num = first([0,1,2]);</pre>
   * 길이를 반환하는 함수에서는 배열로 작성하는 것이 아닌 제네릭 타입변수에 길이가 number인 프로퍼티를 가지고 있는 타입으로 확장한다는 것을 추가해줘야 한다.(<T extends {length:number}>) 
 
 * **map 메서드**
-  * 만약 arr에 string 배열 타입이 들어가고 callback 함수에 반환값의 타입이 number 타입일 경우 제네릭 타입변수를 2가지로 받아서 반환값을 다르게 작성해줘야 한다.
-```
-function map(arr:T[], callback:(item:T) => T) {
- let result = [];
- for (let i = 0; i < arr.length; i++){
-  result.push(callback(arr[i]));
- }
-}
-
-map(arr, (it) => it * 2);
-map(["hi","hello"], (it) => parsInt(it));
-```
+  * 만약 arr에 string 배열 타입이 들어가고 callback 함수에 반환값의 타입이 number 타입일 경우 제네릭 타입변수를 2가지로 받아서 반환값을 다르게 작성해줘야 한다.<br><pre>function map(arr: T[], callback: (item: T) => T) {<br> let result = [];<br> for (let i = 0; i < arr.length; i++) {<br> result.push(callback(arr[i]));<br> }<br>}<br>map(arr, (it) => it * 2);<br>map(["hi", "hello"], (it) => parsInt(it));</pre>
 
 * **forEach 메서드**
 ```
@@ -336,45 +310,11 @@ forEach(arr2, it) => {
 
 * **제네릭 인터페이스**
   * 제네릭 함수 만드는것과 동일하게 만들어 주면 된다.(function -> interface) 다만, 변수에 타입으로 정의할 경우 타입 변수를 꼭! 정의해줘야한다.
-  * 타입 변수(공식문서 명칭) = 타입 파라미터 = 제네릭 타입 변수 = 제네릭 타입 파라미터라고 불리기도 한다.
-```
-interface KeyPair<K, V> {
- key: K;
- value: V;
-}
-
-let ketPair: KeyPair<string, number> = {
- key: "key",
- value: 0,
-};
-```
-
-* 제네릭 인터페이스는 인덱스 시그니처와 사용하면 좋은 이유는 변수 타입을 다양하게 사용할 수 있다. 😄
-```
-interface Map<V> {
- [key: string]: V;
-}
-
-let stringMap: Map<string> = {
- key: "value",
-};
-
-let booleanMap: Map<boolean> = {
- key: true,
-};
-```
+  * 타입 변수(공식문서 명칭) = 타입 파라미터 = 제네릭 타입 변수 = 제네릭 타입 파라미터라고 불리기도 한다.<br><pre>interface KeyPair<K, V> {<br> key: K;<br> value: V;<br>}<br>let keyPair: KeyPair<string, number> = {<br> key: "key",<br> value: 0;<br>};</pre>
+  * 제네릭 인터페이스는 인덱스 시그니처와 사용하면 좋은 이유는 변수 타입을 다양하게 사용할 수 있다. 😄<br><pre>interface Map<V> {<br> [key: string]: V;<br>}<br>let stringMap: Map<string> = {<br> key: "value",<br>};<br>let booleanMap: Map<boolean> = {<br> key: true,<br>};</pre>
 
 * **제네릭 타입별칭**
-  * 제네릭 타입별칭도 제네릭 인터페이스처럼 동일하게 타입 변수를 꼭! 정의해줘야하며 제네릭 인터페이스랑 문법만 다를뿐 거의 비슷하다고 보면 된다.
-```
-type Map2<V> = {
- [key: string]: V;
-};
- 
-let stringMap2: Map2<stirng> = {
- key: "typescript",
-};
-```
+  * 제네릭 타입별칭도 제네릭 인터페이스처럼 동일하게 타입 변수를 꼭! 정의해줘야하며 제네릭 인터페이스랑 문법만 다를뿐 거의 비슷하다고 보면 된다.<br><pre>type Map2<V> = {<br> [key: string]: V;<br>};<br>let stringMap2: Map2<string> = {<br> key: "typescript",<br>};</pre>
 
 * **제네릭 클래스**
   * 클래스 이름 뒤에 제네릭 타입변수를 작성하여 제네릭 클래스로 만들어준다.
