@@ -289,7 +289,7 @@ const employeeB = new Employee("이정환", 27, "개발자");
 
 * **제네릭 함수 응용**
   * 함수 호출시 2가지 인수를 받을 경우 제네릭 타입변수도 2가지를 받아야 타입이 다르더라도 오류가 나지 않는다.(<T, U> 이런식으로) 그 이유는 처음에 받은 타입이 두번째 타입에도 동일하게 할당이 되서 오류가 나기 때문이다.
-  * 함수 호출 전에는 제네릭 타입에 어떤 타입이 올지 모르기 때문에 배열의 인덱스를 반환할 경우에 오류가 발생한다. 그 이유는 unknown 타입의 인덱스 형식으로 사용할 수 없기 때문인데 이때 T[]로 명시해준다면 오류가 발생하지 않는다.(타입을 명시하지 않을 경우 (data:[T, ...unknown[]])으로 사용)<br><pre>function first<T>(data: T[]){<br> return data[0]<br>}<br>let num = first([0,1,2]);</pre>
+  * 함수 호출 전에는 제네릭 타입에 어떤 타입이 올지 모르기 때문에 배열의 인덱스를 반환할 경우에 오류가 발생한다. 그 이유는 unknown 타입의 인덱스 형식으로 사용할 수 없기 때문인데 이때 T[]로 명시해준다면 오류가 발생하지 않는다.(타입을 명시하지 않을 경우 (data:[T, ...unknown[]])으로 사용)<br><pre>function first<T>(data: T[]){<br> return data[0];<br>}<br>let num = first([0,1,2]);</pre>
   * 길이를 반환하는 함수에서는 배열로 작성하는 것이 아닌 제네릭 타입변수에 길이가 number인 프로퍼티를 가지고 있는 타입으로 확장한다는 것을 추가해줘야 한다.(<T extends {length:number}>) 
 
 * **map 메서드**
@@ -323,4 +323,57 @@ forEach(arr2, it) => {
 * **제네릭 프로미스**
   * 프로미스 생성자를 호출할 때 타입변수를 할당하면 비동기 처리 결과 값을 직접 명시할 수 있다. 다만, 실패했을 경우는 설정할 수 없으며 이때는 unknown 타입으로 확인된다.
   * 함수의 반환 값 타입에 제네릭 타입변수를 작성하는 경우가 많다. 함수의 선언만 봐도 어떤 타입을 반환하는지를 확인하는 것이 좋기 때문이다.(실무에서는 함수의 반환 값 타입에 작성했었다..😮)
+
+#### 20. 타입 조작하기
+* **인덱스드 엑세스 타입:** 인덱스를 이용해서 특정 프로퍼티 타입을 추출하는 것이다. 객체, 배열, 튜플에 전부 사용 가능하다.
+  * ex. Post["author"] -> Post 타입중 뽑아내고 싶은 프로퍼티 author의 객체 타입만 추출할 수 있다.
+  * 인덱스 안에 들어가는 문자열은 값(변수)이 아닌 타입이라는 것을 이해해야한다! 또한, 타입 안에 특정 프로퍼티가 없는 값을 넣으면 오류가 발생한다.
+  * ex. Post 타입의 author 객체의 id 값만 가져오고 싶을 경우 -> Post["author"]["id"]
+  * 배열 타입의 경우 타입 뒤에 [0] 또는 [number]를 넣어주면 하나의 요소의 타입만 가져올 수 있으며 이때도 값이 아닌 number 타입! 타입을 넣은 것이다.
+  * 튜플 타입의 경우 인덱스를 사용해서 각각 타입을 가져올 수 있다.(ex. type Tup = [number, string] -> Tup[1])
+
+* **keyof 타입:** 객체타입에 적용하는 연산자로 keyof 타입을 사용하면 전부 유니온 타입으로 모든 프로퍼티를 추출할 수 있다.
+  * 다만, keyof 연산자는 타입에만 사용할 수 있다는 것을 기억해야하며, keyof를 typeof와 사용한다면 더 간편하게 사용할 수 있다.<br><pre>type Person = typeof person;<br>function getPropertyKey(person: Person, key: keyof typeof person( {<br> return person[key];<br>}<br>const person = {<br> name: "이정환",<br> age: 27,<br>};<br>getPropertyKey(person, "name");</pre>
+
+* **맵드 타입:** keyof 타입처럼 객체타입에 적용할 수 있으며, 인덱스 시그니처 문법과 비슷하기도 하다.
+  * [key in "id" | "name"]: User[key] -> key in은 key가 id, name일 수도 있다고 해석되고 User[key]는 인덱스드 엑세스 타입으로 key가 id, name으로 해석된다. 즉, id: User["id"]으로 number 타입, name: User["name"]으로 string 타입이 된다.
+  * 여기서 맵드 타입의 진가는 선택적 프로퍼티를 설정하고 싶을때 사용한다.(ex. [key in "id" | "name"]?: User[key])
+  * 만약 유니온 타입으로 넣기 너무 많을 경우 keyof와 같이 사용할 수 있다.(ex.[key in keyof User]?: User[key])
+  * 만약 전부 수정이 안되고 읽기전용일 경우 readonly를 사용해주면 된다.(ex.readonly [key in "id" | "name"]?: User[key])
+ 
+* **템플릿 리터럴 타입**
+```
+type Color = "red" | "black" | "green";
+type Animal = "dog" | "cat" | "chicken";
+type ColorAnimal = `${Color}-${Animal}`; // 간단하게 만들고 싶은 조합으로 만들 수 있다.(문자열일 경우)
+```
+
+#### 21. 조건부 타입
+* 조건부 타입은 삼항연산자를 사용한 조건으로 타입을 결정하는 것이다.
+```
+// number 타입이 string 타입을 확장한 타입이 참이면 string 타입, 거짓이면 number 타입(결과: A는 number 타입)
+type A = number extends string ? string : number; 
+```
+* 제네릭과 조건부 타입을 같이 사용하는 경우에는 타입을 가변적으로 쓰면서 논리의 흐름대로 타입을 변경할 수 있다.
+```
+// StringNumberSwitch 호출시 넘어오는 타입이 number 타입을 확장한 타입인지
+type StringNumberSwitch<T> = T extends number ? string : number;
+type varA = StringNumberSwitch<number>; // 참 결과: string
+type varB = StringNumberSwitch<string>; // 거짓 결과: number(
+```
+* 함수의 반환 값에 조건부 타입을 넣어서 사용할 수도 있다. 다만, 함수 내부에 타입 관련 코드가 있다면 함수 호출전에는 오류가 날 수도 있다. 이때는 함수 오버로딩을 통해서 선언부를 만들어주고 구현부에는 함수의 반환 값을 지우고 매개변수 타입은 any 타입으로 정해서 사용한다.
+
+* **분산적인 조건부 타입:** 조건부 타입을 유니온과 함께 사용할 때 조건부 타입이 분산적으로 사용될 수 있게 만드는 것이다.
+  * 유니온 타입을 사용할 경우 한번은 첫번째 타입, 그다음 두번째 타입등 한번씩 조건부의 참과 거짓을 판단한다. 결국 변수의 타입은 유니온 타입으로 나오게 된다.
+  * 중복되는 타입은 생략이 되며 never 타입일 경우도 생략되서 나오게 된다. never 타입이 사라지는 이유는 유니온 타입은 타입들간의 합집합 타입을 만드는데 never은 공집합 타입이므로 공집합과 다른 집합을 합집합 하는 것은 원래 원본 집합이기 때문에 사라지게 된다.
+  * 분산적인 조건부 타입을 방지할 경우에는 [T] extends [number] ? ..... 처럼 대괄호를 사용해주면 된다. 결국 결과는 전부 거짓으로 나올 수 밖에 없다.
+
+* **infer:** 조건부 타입 내에서 특정 타입만 추론할 수 있다.
+  * infer R 문법은 결국 참으로 만들 수 있는 조건으로 추론을 한다. 그렇기 때문에 거짓으로 넘어가는 경우는 추론이 불가능한 상황만 존재한다.<br><pre>type FuncA = () => string;<br>type FuncB = () => number;<br>type ReturnType<T> = T extends () => infer R ? R : never;<br>type A = ReturnType<FuncA>;<br>type B = ReturnType<FuncB>;<br>type C = ReturnType<number>; // 추론 불가능..</pre>
+
+#### 22. 유틸리티 타입
+* 제네릭, 맵드 타입, 조건부 타입 등의 타입 조작 기능을 이용해 실무에서 자주 사용되는 타입을 미리 만들어 놓은것
+
+
+
 
