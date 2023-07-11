@@ -393,5 +393,5 @@ type varB = StringNumberSwitch<string>; // 거짓 결과: number
 
   * **Extract<T, U>:** T에서 U를 추출하는 타입이다.<br><pre>type Extract<T, U> = T extends U ? T : never;<br><br>type B = Extract<string | boolean, boolean></pre>
 
-  * **ReturnType<T>:** 함수의 반환값 타입을 추출하는 타입이다.<br><pre>type ReturnType<T extends (...args: any) => any> = T extends (<br> ...agrs: any<br>) => infer R<Br> ? R<br> : never;<br><br>function funcA() {<br> return "hello";<br>}<br><br>function funcB() {<br> return 10;<br>}<br><br>type ReturnA =ReturnType<typeof funcA>; // ReturnA의 타입은 string<br>type ReturnB = ReturnType<typeof funcB>; // ReturnB의 타입은 number</pre>
+  * **ReturnType<T>:** 함수의 반환값 타입을 추출하는 타입이다.(ex. type A = ReturnType<typeof 함수명>으로 작성해서 사용한다.)<br><pre>type ReturnType<T extends (...args: any) => any> = T extends (<br> ...agrs: any<br>) => infer R<Br> ? R<br> : never;<br><br>function funcA() {<br> return "hello";<br>}<br><br>function funcB() {<br> return 10;<br>}</pre>
 
