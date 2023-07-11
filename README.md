@@ -359,7 +359,7 @@ type A = number extends string ? string : number;
 // StringNumberSwitch 호출시 넘어오는 타입이 number 타입을 확장한 타입인지
 type StringNumberSwitch<T> = T extends number ? string : number;
 type varA = StringNumberSwitch<number>; // 참 결과: string
-type varB = StringNumberSwitch<string>; // 거짓 결과: number(
+type varB = StringNumberSwitch<string>; // 거짓 결과: number
 ```
 * 함수의 반환 값에 조건부 타입을 넣어서 사용할 수도 있다. 다만, 함수 내부에 타입 관련 코드가 있다면 함수 호출전에는 오류가 날 수도 있다. 이때는 함수 오버로딩을 통해서 선언부를 만들어주고 구현부에는 함수의 반환 값을 지우고 매개변수 타입은 any 타입으로 정해서 사용한다.
 
@@ -371,9 +371,27 @@ type varB = StringNumberSwitch<string>; // 거짓 결과: number(
 * **infer:** 조건부 타입 내에서 특정 타입만 추론할 수 있다.
   * infer R 문법은 결국 참으로 만들 수 있는 조건으로 추론을 한다. 그렇기 때문에 거짓으로 넘어가는 경우는 추론이 불가능한 상황만 존재한다.<br><pre>type FuncA = () => string;<br>type FuncB = () => number;<br>type ReturnType<T> = T extends () => infer R ? R : never;<br>type A = ReturnType<FuncA>;<br>type B = ReturnType<FuncB>;<br>type C = ReturnType<number>; // 추론 불가능..</pre>
 
+
+
 #### 22. 유틸리티 타입
 * 제네릭, 맵드 타입, 조건부 타입 등의 타입 조작 기능을 이용해 실무에서 자주 사용되는 타입을 미리 만들어 놓은것
 
+* **맵드 타입 기반의 유틸리티 타입들**
+  * **Partial<T>:** 특정 객체 타입의 모든 프로퍼티를 선택적 프로퍼티로 바꿔주는 타입이다.(부분적인, 일부분의)<br><pre>interface Post {<br> title: string;<br> tags: string[];<br> content: string;<br> thumbnailURL?: string;<br>}<br><br>type Partial<T> = {<br> [key in keyof T]?: T[key];<br><br>const draft: Partial<Post> = {<br> title: "제목 나중에 짓자",<br> content: "초안...,<br>};</pre>
+  * **Required<T>:** 특정 객체 타입의 모든 프로퍼티를 필수 프로퍼티로 바꿔주는 타입이다.(필수의, 필수적인)<br><pre>type Required<T> = {<br> [key in keyof T]-?: T[key];<br><br>const withThumbnailPost: Required<Post> = {<br> title: "한입 타스 후기",<br> tags: ["ts"],<br> content: "",<br> thumbnailURL: "https://...",<br>};</pre>
 
+  * **Readonly<T>:** 특정 객체 타입에서 모든 프로퍼티를 읽기 전용 프로퍼티로 만들어주는 타입이다.(읽기전용, 수정불가)<br><pre>type Readonly<T> = {<br> readonly [key in keyof T]: T[key];<br><br>const radonlyPost: Readonly<Post> = {<br> title: "보호된 게시글 입니다.",<br> tags: [],<br> content: "",<br>};</pre>
 
+  * **Pick<T, K>:** 객체 타입으로부터 특정 프로퍼티만 골라내는 타입이다.(뽑다, 고르다)<br><pre>type Pick<T, K extends keyof T> = {<br> [key in K]: T[key];<br>};<br><br>const legacyPost: Pick<Post, "title" | "content"> = {<br> title: "옛날 글",<br> content: "옛날 컨텐츠",<br>};</pre>
+
+  * **Omit<T, K>:** 객체 타입으로부터 특정 프로퍼티를 제거하는 타입이다.(생략하다, 빼다)<br><pre>type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;<br><br>const noTitlePost: Omit<Post, "title"> = {<br> content: "",<br> tags: [],<br> thumbnailURL: "",<br>};</pre>
+
+  * **Record<K, V>:** 객체 타입을 새롭게 적용할 때 자주 사용된다. 타입에서 중복되는 코드들이 많아진다면 수정할 때 번거롭기 때문에 이때 많이 사용한다고 한다.<br><pre>type Record<K extends keyof any, V> = {<br> [key in K]: V<br>}<br><br>type Thumbnail = Record<"large" | "medium" | "small", {url: string, size: number}>;</pre>
+
+* **조건부 타입 기반의 유틸리티 타입들**
+  * **Exclude<T, U>:** T에서 U를 제거하는 타입이다.(제외하다, 추방하다)<br><pre>type Exclude<T, U> = T extends U ? never : T;<br><br>type A = Exclud<string | boolean, boolean></pre>
+
+  * **Extract<T, U>:** T에서 U를 추출하는 타입이다.<br><pre>type Extract<T, U> = T extends U ? T : never;<br><br>type B = Extract<string | boolean, boolean></pre>
+
+  * **ReturnType<T>:** 함수의 반환값 타입을 추출하는 타입이다.<br><pre>type ReturnType<T extends (...args: any) => any> = T extends (<br> ...agrs: any<br>) => infer R<Br> ? R<br> : never;<br><br>function funcA() {<br> return "hello";<br>}<br><br>function funcB() {<br> return 10;<br>}<br><br>type ReturnA =ReturnType<typeof funcA>; // ReturnA의 타입은 string<br>type ReturnB = ReturnType<typeof funcB>; // ReturnB의 타입은 number</pre>
 
